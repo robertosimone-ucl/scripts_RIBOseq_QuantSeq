@@ -106,3 +106,51 @@ ggplot(all_comparisons, aes(x = reference, y = comparison)) +
   ggtitle("Pair-wise comparison of number of RFPs aligning to MAPT gene") +
   xlab("Reference Sample") +
   ylab("Comparison Sample")
+
+
+
+## RFP volcano plot
+
+min_counts_per_sample_average <- 10
+min_counts <- 10*17
+
+filtered <- combined %>% 
+  filter(A1 +A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts)
+
+matrix <- as.matrix(filtered %>% column_to_rownames(var = "gene_id"))  
+
+dds <- DESeqDataSetFromMatrix(countData = matrix,
+                              colData = col_data,
+                              design = ~ condition)
+
+# state reference
+i <- "A"
+
+# state comparison
+j <- "B"
+
+dds$condition <- relevel(dds$condition, ref = i)
+dds <- DESeq(dds)
+comparison_name <- paste0("condition_", j, "_vs_", i)
+res <- results(dds, name=comparison_name)
+
+info <- read_tsv(paste0(here(), "/data/longest_proteincoding_transcript_hs_details.txt"))
+
+res_data <- data.frame(res) %>%
+  rownames_to_column(var = "gene_id") %>%
+  left_join(info, by="gene_id")%>%
+  mutate(minus_log10_p = -log10(pvalue)) %>%
+  mutate(is_MAPT = gene_id == "ENSG00000186868.15") %>%
+  mutate(color = ifelse(is_MAPT, "red", "grey60")) %>%
+  mutate(name = ifelse(abs(log2FoldChange) >2 | pvalue < 0.001 | gene_name == "MAPT", gene_name, "")) %>%
+  arrange(log2FoldChange)
+
+ggplot(res_data, aes(log2FoldChange, minus_log10_p, colour = color, name=name)) +
+  geom_point(size=1, alpha = 1) +
+  ggtitle(paste0("Volcano plot of condition B versus A with minimum \n", min_counts, " counts total across 17 samples")) +
+  scale_colour_identity() +
+  theme_minimal() +
+  geom_text(aes(label=name),hjust=0.6, vjust=1.2, size =3)
+
+write_csv(res_data, paste0(here(), "/data/RFP_A_vs_B_volcano_data.csv"))
+
