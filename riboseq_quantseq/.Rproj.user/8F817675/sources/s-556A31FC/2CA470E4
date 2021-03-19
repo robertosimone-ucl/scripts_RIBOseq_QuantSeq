@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1616185077515.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2323991155",
+    "id" : "2CA470E4",
+    "lastKnownWriteTime" : 1616184919,
+    "last_content_update" : 1616184919,
+    "path" : "~/GitHub/scripts_PPI-networks/riboseq_quantseq/all_riboseq_preprocessing.R",
+    "project_path" : "all_riboseq_preprocessing.R",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

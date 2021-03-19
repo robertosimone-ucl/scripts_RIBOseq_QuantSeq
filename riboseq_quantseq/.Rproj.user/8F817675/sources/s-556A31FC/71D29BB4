@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1616180568017.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3868565056",
+    "id" : "71D29BB4",
+    "lastKnownWriteTime" : 1616185736,
+    "last_content_update" : 1616185736076,
+    "path" : "~/GitHub/scripts_PPI-networks/riboseq_quantseq/riboseq_quantseq_figures.Rmd",
+    "project_path" : "riboseq_quantseq_figures.Rmd",
+    "properties" : {
+        "cursorPosition" : "81,16",
+        "last_setup_crc32" : "556A31FCf6b19d74",
+        "scrollLine" : "73",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
