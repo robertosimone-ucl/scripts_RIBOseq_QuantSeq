@@ -1,2 +1,2 @@
-# scripts_PPI-networks
-scripts to generate Protein-Protein Interactions networks from data retrieved by PINOT
+# scripts_RIBOseq_QuantSeq
+scripts to analyse and plot RIBOseq and QuantSeq data
