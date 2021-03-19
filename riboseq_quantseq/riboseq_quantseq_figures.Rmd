@@ -1,0 +1,38 @@
+---
+title: "Riboseq_quantseq_figures"
+author: "Oscar Wilkins"
+date: "19/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require("pacman")) install.packages("pacman")
+library(pacman)
+p_load("tidyverse", "here")
+```
+
+## 6 Way Heatmap of differential RFP data
+
+This code generates a 6-way heatmap of the RFP data. It reads in the raw data, which is produced by the script "6_way_heatmap_of_RFP_counts_across_whole_gene_29_to_35_nt_from_min2_to_plus2.R" 
+
+```{r 6wayRFP}
+
+sq_lg2 <- read_csv(paste0(here(), "/data/square_lg2.csv"))
+
+all_comparisons <- sq_lg2 %>%
+  pivot_longer(cols = c("A", "B", "C", "D", "E", "G"), 
+               names_to="reference",
+               values_to = "log2fold") %>%
+  filter(!is.na(log2fold))
+
+ggplot(all_comparisons, aes(x = reference, y = comparison)) + 
+  geom_tile(aes(fill=log2fold)) +
+  scale_fill_gradient2(low="blue", mid= "white" ,high="red", midpoint=0,
+                       limits = c(-2,2), breaks =c(-2, -1, 0, 1, 2))  +
+  theme_minimal() +
+  ggtitle("Pair-wise comparison of number of RFPs aligning to MAPT gene") +
+  xlab("Reference Sample") +
+  ylab("Comparison Sample")
+
+```
