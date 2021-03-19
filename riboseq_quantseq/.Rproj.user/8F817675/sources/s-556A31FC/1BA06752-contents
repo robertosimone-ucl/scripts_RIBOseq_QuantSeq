@@ -56,7 +56,6 @@ min_counts <- 170
 filtered <- combined %>% 
   filter(A1 +A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts)
 
-
 matrix <- as.matrix(filtered %>% column_to_rownames(var = "gene_id"))  
 
 dds <- DESeqDataSetFromMatrix(countData = matrix,

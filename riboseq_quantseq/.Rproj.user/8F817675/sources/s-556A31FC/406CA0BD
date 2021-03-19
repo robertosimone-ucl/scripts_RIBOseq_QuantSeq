@@ -2,18 +2,18 @@
     "collab_server" : "",
     "contents" : "",
     "created" : 1616180850028.000,
-    "dirty" : true,
+    "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
     "hash" : "0",
     "id" : "406CA0BD",
-    "lastKnownWriteTime" : 1616181850,
-    "last_content_update" : 1616181867047,
-    "path" : "~/GitHub/scripts_PPI-networks/riboseq_quantseq/6_way_heatmap_of_RFP_counts_across_whole_gene_29_to_35_nt_from_min2_to_plus2.R",
-    "project_path" : "6_way_heatmap_of_RFP_counts_across_whole_gene_29_to_35_nt_from_min2_to_plus2.R",
+    "lastKnownWriteTime" : 1616183707,
+    "last_content_update" : 1616183707546,
+    "path" : "~/GitHub/scripts_PPI-networks/riboseq_quantseq/all_riboseq_quantseq_preprocessing.R",
+    "project_path" : "all_riboseq_quantseq_preprocessing.R",
     "properties" : {
-        "cursorPosition" : "105,0",
-        "scrollLine" : "80"
+        "cursorPosition" : "147,0",
+        "scrollLine" : "132"
     },
     "read_only" : false,
     "read_only_alternatives" : [

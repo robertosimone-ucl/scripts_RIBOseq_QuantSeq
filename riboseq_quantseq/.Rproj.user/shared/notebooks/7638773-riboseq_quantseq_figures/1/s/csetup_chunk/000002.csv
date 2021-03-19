@@ -1,5 +1,4 @@
-"0","if (!require(""pacman"")) install.packages(""pacman"")
+"0","```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 "
-"2","Loading required package: pacman
+"2","Error: attempt to use zero-length variable name
 "
-"2","package ‘pacman’ was built under R version 4.0.4"

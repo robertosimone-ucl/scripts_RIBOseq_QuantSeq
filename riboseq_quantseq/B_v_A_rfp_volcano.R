@@ -56,27 +56,17 @@ min_counts <- 170
 filtered <- combined %>% 
   filter(A1 +A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts)
 
-
 matrix <- as.matrix(filtered %>% column_to_rownames(var = "gene_id"))  
 
 dds <- DESeqDataSetFromMatrix(countData = matrix,
                               colData = col_data,
                               design = ~ condition)
 
-
-
 # state reference
 i <- "A"
 
 # state comparison
 j <- "B"
-
-
-## add lnc info
-
-#lnc <- read_csv("MIRlnc S_AS gene targets list.csv",
-#                col_names = c("gene_id2", "gene_name", "lncRNA", "exon_type",
-#                             "orientation_of_lnc", "orientation_of_repeat"))
   
 dds$condition <- relevel(dds$condition, ref = i)
 dds <- DESeq(dds)
@@ -90,10 +80,6 @@ res_data <- data.frame(res) %>%
   mutate(is_MAPT = gene_id == "ENSG00000186868.15") %>%
   mutate(color = ifelse(is_MAPT, "red", "grey60")) %>%
   mutate(name = ifelse(abs(log2FoldChange) >2 | pvalue < 0.001 | gene_name == "MAPT", gene_name, ""))
-
-#ggplot(res_data, aes(log2FoldChange, minus_log10_p)) +
-#  geom_point(aes(colour = is_MAPT), size=1, alpha = 1) +
-#  ggtitle(comparison_name)
 
 ggplot(res_data, aes(log2FoldChange, minus_log10_p, colour = color, name=name)) +
   geom_point(size=1, alpha = 1) +

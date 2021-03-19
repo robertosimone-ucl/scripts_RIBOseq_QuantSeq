@@ -3,10 +3,6 @@ library(DESeq2)
 library(here)
 
 setwd("A:/home/users/wilkino/ALL_RIBOSEQ/Roberto_Simone/RS_mapped/results/genome_dedup/")
-longest_transcript_name <- "D:/transcriptome_dedup/bedfiles/longest_proteincoding_transcript_hs_details.txt"
-info <- read_tsv(longest_transcript_name)
-
-min_counts <- 100 # doesn't really matter for this plot
 
 samples <- c("A1",
                       "A2",
@@ -51,10 +47,7 @@ col_data <- data.frame(samples = colnames(combined)[2:18]) %>%
 
 #ENSG00000186868.15 is mapt
 
-filtered <- combined %>% 
-  filter(A1+A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts)
-
-matrix <- as.matrix(filtered %>% column_to_rownames(var = "gene_id"))  
+matrix <- as.matrix(combined %>% column_to_rownames(var = "gene_id"))  
 
 dds <- DESeqDataSetFromMatrix(countData = matrix,
                               colData = col_data,
@@ -94,14 +87,14 @@ square_pvalue <- all_comparisons %>%
   pivot_wider(names_from = "reference", values_from = "pvalue") %>%
   arrange(comparison)
 
-write_csv(square_pvalue, paste0(here(), "square_pvalues.csv"))
+write_csv(square_pvalue, paste0(here(), "/data/square_pvalues.csv"))
 
 square_lg2 <- all_comparisons %>% 
   dplyr::select(-pvalue) %>%
   pivot_wider(names_from = "reference", values_from = "log2fold") %>%
   arrange(comparison)
 
-write_csv(square_lg2, paste0(here(), "square_lg2.csv"))
+write_csv(square_lg2, paste0(here(), "/data/square_lg2.csv"))
 
 ## Save 6 Way heatmap ##
 

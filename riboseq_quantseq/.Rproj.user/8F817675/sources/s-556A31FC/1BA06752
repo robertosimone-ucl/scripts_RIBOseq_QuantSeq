@@ -2,18 +2,18 @@
     "collab_server" : "",
     "contents" : "",
     "created" : 1616180705334.000,
-    "dirty" : true,
+    "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1569005040",
+    "hash" : "0",
     "id" : "1BA06752",
-    "lastKnownWriteTime" : 1616180710,
-    "last_content_update" : 1616180728913,
+    "lastKnownWriteTime" : 1616183268,
+    "last_content_update" : 1616183268962,
     "path" : "~/GitHub/scripts_PPI-networks/riboseq_quantseq/B_v_A_rfp_volcano.R",
     "project_path" : "B_v_A_rfp_volcano.R",
     "properties" : {
-        "cursorPosition" : "82,101",
-        "scrollLine" : "64"
+        "cursorPosition" : "58,0",
+        "scrollLine" : "44"
     },
     "read_only" : false,
     "read_only_alternatives" : [
