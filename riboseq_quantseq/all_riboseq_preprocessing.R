@@ -51,7 +51,7 @@ min_counts_per_sample_average <- 10
 min_counts <- 10*17
 
 filtered <- combined %>% 
-  filter(A1 +A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts)
+  filter(A1 +A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts) # verified that this gives identical results to dds[keep,] method on DESeq2 vignette 
 
 matrix <- as.matrix(filtered %>% column_to_rownames(var = "gene_id"))  
 
