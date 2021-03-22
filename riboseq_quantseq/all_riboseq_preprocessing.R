@@ -47,7 +47,13 @@ col_data <- data.frame(samples = colnames(combined)[2:18]) %>%
 
 #ENSG00000186868.15 is mapt
 
-matrix <- as.matrix(combined %>% column_to_rownames(var = "gene_id"))  
+min_counts_per_sample_average <- 10
+min_counts <- 10*17
+
+filtered <- combined %>% 
+  filter(A1 +A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts) # verified that this gives identical results to dds[keep,] method on DESeq2 vignette 
+
+matrix <- as.matrix(filtered %>% column_to_rownames(var = "gene_id"))  
 
 dds <- DESeqDataSetFromMatrix(countData = matrix,
                               colData = col_data,
@@ -111,12 +117,6 @@ ggplot(all_comparisons, aes(x = reference, y = comparison)) +
 
 ## RFP volcano plot
 
-min_counts_per_sample_average <- 10
-min_counts <- 10*17
-
-filtered <- combined %>% 
-  filter(A1 +A2+A3+B1+B2+B3+C1+C2+C3+D1+D2+D3+E1+E2+E3+G1+G2 >= min_counts)
-
 matrix <- as.matrix(filtered %>% column_to_rownames(var = "gene_id"))  
 
 dds <- DESeqDataSetFromMatrix(countData = matrix,
@@ -152,5 +152,5 @@ ggplot(res_data, aes(log2FoldChange, minus_log10_p, colour = color, name=name)) 
   theme_minimal() +
   geom_text(aes(label=name),hjust=0.6, vjust=1.2, size =3)
 
-write_csv(res_data, paste0(here(), "/data/RFP_A_vs_B_volcano_data.csv"))
+write_csv(res_data, paste0(here(), "/data/RFP_B_vs_A_volcano_data.csv"))
 

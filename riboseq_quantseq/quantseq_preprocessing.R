@@ -93,7 +93,7 @@ ggplot(res_data, aes(log2FoldChange, minus_log10_p, color = colour2, alpha =1, n
   ggtitle(paste0("Quantseq B versus A for min total \ncounts of ", min_counts, " across 18 samples")) +
   theme_minimal()
 
-write_csv(res_data, paste0(here(), "/data/quantseq_A_vs_B_volcano_data.csv"))
+write_csv(res_data, paste0(here(), "/data/quantseq_B_vs_A_volcano_data.csv"))
 
 
 
