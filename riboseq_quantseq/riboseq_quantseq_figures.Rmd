@@ -183,22 +183,22 @@ df_start <- data %>%
   group_by(from_start) %>%
   mutate(n = n()) %>%
   select(from_start, n) %>%
-  unique() +
-  ggtitle("Metaplots around start for A1")
+  unique() 
 
 ggplot(df_start %>% filter(abs(from_start) < 100), aes(x = from_start, y = n)) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity") +
+  ggtitle("Metaplots around start for A1 - all read lengths so strong periodicity NOT expected")
 
 df_end <- data %>%
   mutate(from_end = start-cds_end) %>%
   group_by(from_end) %>%
   mutate(n = n()) %>%
   select(from_end, n) %>%
-  unique() +
-  ggtitle("Metaplots around end for A1")
+  unique() 
 
 ggplot(df_end %>% filter(abs(from_end) < 100), aes(x = from_end, y = n)) +
-  geom_bar(stat="identity")
+  geom_bar(stat="identity")+
+  ggtitle("Metaplots around end for A1 - all read lengths so strong periodicity NOT expected")
 
 
 ```
