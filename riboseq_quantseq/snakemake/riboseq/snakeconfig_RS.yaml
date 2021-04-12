@@ -1,0 +1,33 @@
+samples:
+  A1: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNGATCGNNN_bgi_forward.fastq
+  A2: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNATACGNNN_bgi_forward.fastq
+  A3: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNTCGAGNNN_bgi_forward.fastq
+  B1: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNCACAGNNN_bgi_forward.fastq
+  B2: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNGTTTCNNN_bgi_forward.fastq
+  B3: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNAACTCNNN_bgi_forward.fastq
+  C1: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNTCATCNNN_bgi_forward.fastq
+  C2: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNCCTGCNNN_bgi_forward.fastq
+  C3: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNGGAGCNNN_bgi_forward.fastq
+  D1: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNAGTCCNNN_bgi_forward.fastq
+  D2: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNTCGCCNNN_bgi_forward.fastq
+  D3: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNCATACNNN_bgi_forward.fastq
+  E1: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNGTAACNNN_bgi_forward.fastq
+  E2: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNAGTTANNN_bgi_forward.fastq
+  E3: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNCTGTANNN_bgi_forward.fastq
+  G1: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNTATGANNN_bgi_forward.fastq
+  G2: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNGTAGANNN_bgi_forward.fastq
+  #G3: /camp/lab/ulej/working/Oscar/Roberto_Simone/demultiplexed2/NNNNATCCANNN_bgi_forward.fastq
+
+
+
+# Define the genome files.
+genome: /camp/lab/ulej/working/Rupert/genomes/hs/fasta/GRCh38.primary_assembly.genome.fa
+genome_annot: /camp/lab/ulej/working/Rupert/genomes/hs/annotation/gencode.v29.annotation.gtf
+
+staridx_path: /camp/lab/ulej/working/Oscar/genomes/hs/gencode_29/star_index/
+
+smallrna_genome: /camp/lab/ulej/working/Rupert/genomes/hs/fasta/named_sn_sno_rRNA.gencode.v29.annotation.plus_oscar.fa
+smallrna_indexname: hs_smallrna_genome
+
+# Define the output directory name. You must create this directory prior to running the snakefile !!!!!!!!
+output_dir: RS_mapped

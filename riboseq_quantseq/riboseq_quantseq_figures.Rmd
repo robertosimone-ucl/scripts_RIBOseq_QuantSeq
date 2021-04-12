@@ -168,4 +168,37 @@ ggplot(meta_data, aes(x = Position, y = Counts))+
   geom_area() +
   ggtitle("Distribution of counts")
 
+
+## extra metaplots not in paper
+
+data <- read_tsv(file, col_names = c("transcript_id", "zero_based_start", "end", 
+                                     "name", "score", "strand")) %>%
+  dplyr::filter(strand == "+") %>%
+  mutate(start = zero_based_start + 1) %>%
+  mutate(length = end-start+1) %>%
+  inner_join(info, by = "transcript_id") 
+
+df_start <- data %>%
+  mutate(from_start = start-cds_start) %>%
+  group_by(from_start) %>%
+  mutate(n = n()) %>%
+  select(from_start, n) %>%
+  unique() +
+  ggtitle("Metaplots around start for A1")
+
+ggplot(df_start %>% filter(abs(from_start) < 100), aes(x = from_start, y = n)) +
+  geom_bar(stat="identity")
+
+df_end <- data %>%
+  mutate(from_end = start-cds_end) %>%
+  group_by(from_end) %>%
+  mutate(n = n()) %>%
+  select(from_end, n) %>%
+  unique() +
+  ggtitle("Metaplots around end for A1")
+
+ggplot(df_end %>% filter(abs(from_end) < 100), aes(x = from_end, y = n)) +
+  geom_bar(stat="identity")
+
+
 ```
