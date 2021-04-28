@@ -1,0 +1,88 @@
+#sbatch -N 1 -J snake --mem=8GB -t 24:00:00 -o snakelogs/ribomap_%A.log --wrap="time snakemake -s snakefile.yaml -k --cluster 'sbatch {params.cluster}' --jobs 200 --latency-wait 60 --configfile samples_config.yaml"
+
+rule all:
+    input:
+        expand(config["output_dir"] + "/{sample}.Aligned.sortedByCoord.out.bam", sample=config["samples"])
+
+rule star_index:
+    input:
+        genome_fasta=config["genome"],
+        gtf=config["genome_annot"]
+    threads:
+        8
+    params:
+        outdir=config["staridx_path"],
+        cluster="-p hmem -J staridx -N 1 --mem 256G -c 8 -t 8:00:00 -o " + config["output_dir"] + "/logs/staridx.%A.log"
+    output:
+        index=config["staridx_path"]+"exonInfo.tab"
+    shell:
+        """
+        STAR --runThreadN {threads} \
+        --runMode genomeGenerate \
+        --genomeDir {params.outdir} \
+        --genomeFastaFiles {input.genome_fasta} \
+        --sjdbGTFfile {input.gtf} \
+        --outFileNamePrefix {params.outdir} \
+        --sjdbGTFfeatureExon exon \
+        --sjdbOverhang 100 \
+        --limitGenomeGenerateRAM=200000000000 
+        """
+
+rule cutadapt_1:
+    # This removes the illumina universal adapter
+    input:
+        fastq=lambda wildcards: config["samples"][wildcards.sample]
+    output:
+        fastq_cut = config["tmp_dir"] + "/cut/{sample}.fastq.gz"
+    params:
+        cluster = "-t 4:00:00 -o " + config["tmp_dir"] + "/logs/cutadapt_1.{sample}.%A.log"
+    shell:
+        """
+        cutadapt -j 4 -a AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT -m 15 -o {output.fastq_cut} {input.fastq}
+        """
+
+rule cutadapt_2:
+    # this trims polyA tails
+    input:
+        fastq_cut = config["tmp_dir"] + "/cut/{sample}.fastq.gz"
+    params:
+        cluster = "-t 4:00:00 -o " + config["tmp_dir"] + "/logs/cutadapt_2.{sample}.%A.l"
+    output:
+        fastq_trimmed = config["tmp_dir"] + "/cut_and_trimmed/{sample}.fastq.gz"
+    shell:
+        """
+        cutadapt -j 4 -a AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -m 15 -o {output.fastq_trimmed} {input.fastq_cut}
+        """
+
+
+rule star_map:
+    input:
+        message=config["staridx_path"]+"exonInfo.tab",
+        fastq_trimmed = config["tmp_dir"] + "/cut_and_trimmed/{sample}.fastq.gz"
+    output:
+        bam=config["output_dir"]+"/{sample}.Aligned.sortedByCoord.out.bam"
+    params:
+        star_index=config["staridx_path"],
+        outprefix=config["output_dir"]+"/{sample}.",
+        cluster="-J starmap -N 1 --mem=32G -t 8:00:00 -o " + config["output_dir"] + "/starmap.{sample}.%A.log"
+    threads:
+        8
+    shell:
+        """
+        STAR --runThreadN {threads} \
+        --genomeDir {params.star_index} \
+        --readFilesIn {input.fastq_trimmed} \
+        --readFilesCommand zcat \
+        --outFileNamePrefix {params.outprefix} \
+        --outSAMtype BAM SortedByCoordinate\
+        --seedSearchStartLmax 15 \
+        --genomeLoad NoSharedMemory \
+        --outFilterMultimapNmax 1\
+        --outFilterMismatchNoverReadLmax 0.04 \
+        --alignEndsType Local \
+        --outSAMattributes Standard
+        """
+
+
+
+

@@ -1,0 +1,144 @@
+#sbatch -N 1 -J snake --mem=8GB -t 24:00:00 -o snakelogs/ribomap_%A.log --wrap="time snakemake -s snakefile.yaml -k --cluster 'sbatch {params.cluster}' --jobs 200 --latency-wait 60 --configfile samples_config.yaml"
+
+rule all:
+    input:
+        expand(config["output_dir"] + "/results/STAR/logs/{sample}.Log.final.out", sample=config["samples"]),
+        expand(config["output_dir"] + "/results/STAR/{sample}.Aligned.sortedByCoord.out.bam", sample=config["samples"]),
+        expand(config["output_dir"] + "/results/genome_dedup/{sample}.Aligned.sortedByCoord.out.bam.bai", sample=config["samples"]),
+        expand(config["output_dir"] + "/results/STAR/{sample}.Aligned.toTranscriptome.out.bam", sample=config["samples"]),
+        expand(config["output_dir"] + "/results/transcriptome_dedup/{sample}.Aligned.toTranscriptome.out.bam.bai", sample=config["samples"])
+
+rule star_index:
+    input:
+        genome_fasta=config["genome"],
+        gtf=config["genome_annot"]
+    threads:
+        8
+    params:
+        outdir=config["staridx_path"],
+        cluster="-p hmem -J staridx -N 1 --mem 256G -c 8 -t 8:00:00 -o " + config["output_dir"] + "/logs/staridx.%A.log"
+    output:
+        index=config["staridx_path"]+"exonInfo.tab"
+    shell:
+        """
+        STAR --runThreadN {threads} \
+        --runMode genomeGenerate \
+        --genomeDir {params.outdir} \
+        --genomeFastaFiles {input.genome_fasta} \
+        --sjdbGTFfile {input.gtf} \
+        --outFileNamePrefix {params.outdir} \
+        --sjdbGTFfeatureExon exon \
+        --sjdbOverhang 100 \
+        --limitGenomeGenerateRAM=200000000000 
+        """
+
+rule bowtie2_index:
+    input:
+        genome_fasta=config["smallrna_genome"]
+    output:
+        index=config["smallrna_indexname"]+".1.bt2" # just include this so that snakemake can check if it's made it, it will actually produce 6 or more files probably, but we only need one
+    params:
+        indexname=config["smallrna_indexname"],
+        cluster="-J bt2idx -N 1 --mem=16G -t 8:00:00 -o " + config["output_dir"] + "/logs/bt2idx.%A.log"
+    threads:
+        8
+    shell:
+        "bowtie2-build --threads {threads} {input.genome_fasta} {params.indexname}"
+
+rule bowtie2_map:
+    input:
+        fastq=lambda wildcards: config["samples"][wildcards.sample],
+        indexfile=config["smallrna_indexname"]+".1.bt2"
+    output:
+        bam=config["output_dir"]+"/results/premapping_mapped/{sample}.bam",
+        unmapped=config["output_dir"]+"/results/premapping_unmapped/{sample}.fastq.gz"
+    threads:
+        8
+    params:
+        bowtie2_index=config["smallrna_indexname"],
+        sam=config["output_dir"]+"/results/premapping_mapped/{sample}.sam",
+        cluster="-J bt2_map -N 1 --mem=32G -t 6:00:00 -o " + config["output_dir"] + "/logs/bt2local.{sample}.%A.log",
+        map_params="--norc --no-unal --very-sensitive-local -N 1"
+    shell:
+        """
+        bowtie2 {params.map_params} -p {threads} --un-gz {output.unmapped} -x {params.bowtie2_index} -U {input.fastq} -S {params.sam}
+        samtools sort -o {output.bam} -O bam -@ {threads} {params.sam}
+        samtools index {output.bam}
+        rm {params.sam}
+        """
+
+rule star_map:
+    input:
+        message=config["staridx_path"]+"exonInfo.tab",
+        fastq=config["output_dir"]+"/results/premapping_unmapped/{sample}.fastq.gz"
+    output:
+        bam=config["output_dir"]+"/results/STAR/{sample}.Aligned.sortedByCoord.out.bam",
+        bam2=config["output_dir"] + "/results/STAR/{sample}.Aligned.toTranscriptome.out.bam",
+        logfolder=config["output_dir"]+"/results/STAR/logs/{sample}.Log.final.out"
+    params:
+        star_index=config["staridx_path"],
+        log=config["output_dir"]+"/results/STAR/{sample}.Log.final.out",
+        outprefix=config["output_dir"]+"/results/STAR/{sample}.",
+        cluster="-J starmap -N 1 --mem=32G -t 8:00:00 -o " + config["output_dir"] + "/logs/starmap.{sample}.%A.log"
+    threads:
+        8
+    shell:
+        """
+        STAR --runThreadN {threads} \
+        --genomeDir {params.star_index} \
+        --readFilesIn {input.fastq} \
+        --readFilesCommand zcat \
+        --outFileNamePrefix {params.outprefix} \
+        --outSAMtype BAM SortedByCoordinate\
+        --seedSearchStartLmax 15 \
+        --outReadsUnmapped Fastx\
+        --genomeLoad NoSharedMemory \
+        --outFilterMultimapNmax 1\
+        --outFilterMismatchNoverReadLmax 0.04\
+        --alignEndsType EndToEnd \
+        --quantMode TranscriptomeSAM \
+        --outSAMattributes Standard
+        mv {params.log} {output.logfolder}
+        """
+
+
+
+
+rule genome_dedup:
+    input:
+        bam=config["output_dir"] + "/results/STAR/{sample}.Aligned.sortedByCoord.out.bam"
+    output:
+        uniq=config["output_dir"] + "/results/genome_dedup/{sample}.Aligned.sortedByCoord.out.bam",
+        bai=config["output_dir"] + "/results/genome_dedup/{sample}.Aligned.sortedByCoord.out.bam.bai"
+    params:
+        um=config["output_dir"] + "/results/genome_dedup/um.{sample}.Aligned.sortedByCoord.out.bam",
+        cluster="-J gen_dedup -N 1 --mem=32G -t 4:00:00 -o " + config["output_dir"] + "/logs/gen_dedup.{sample}.%A.log"
+    shell:
+        """
+        samtools view -q 20 -h {input.bam} > {params.um} #-q 20 is probably unnecessary as we don't allow multimapping reads.
+        umi_tools dedup --umi-separator '_' -I {params.um} -S {output.uniq}
+        samtools index {output.uniq} > {output.bai}
+        rm {params.um}
+        """
+
+
+rule transcriptome_dedup:
+    input:
+        bam2=config["output_dir"] + "/results/STAR/{sample}.Aligned.toTranscriptome.out.bam"
+    output:
+        bam=config["output_dir"] + "/results/transcriptome_dedup/{sample}.Aligned.toTranscriptome.out.bam",
+        bai=config["output_dir"] + "/results/transcriptome_dedup/{sample}.Aligned.toTranscriptome.out.bam.bai"
+    threads:
+        8
+    params:
+        cluster="-J tome_dedup -N 1 --mem=32G -t 4:00:00 -o " + config["output_dir"] + "/logs/transcriptome_dedup.{sample}.%A.log",
+        bam=config["output_dir"] + "/results/transcriptome_dedup/temp.{sample}.Aligned.toTranscriptome.out.bam"
+    shell:
+        """
+        samtools sort -@ {threads} {input.bam2} > {params.bam} #It's necessary to sort and index the transcriptome bam in order for UMI Tools to process it.
+        samtools index {params.bam}
+        umi_tools dedup --umi-separator '_' -I {params.bam} -S {output.bam}
+        samtools index {output.bam} > {output.bai}
+        rm {params.bam}
+        rm {params.bam}.bai
+        """

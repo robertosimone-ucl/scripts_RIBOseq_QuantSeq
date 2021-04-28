@@ -87,3 +87,118 @@ ggplot(quantseq_data, aes(log2FoldChange, minus_log10_p, color = colour2, alpha 
   theme_minimal()
 
 ```
+
+
+## Riboseq quality control
+
+```{r}
+
+min_length <- 29
+max_length <- 35
+
+info <- read_tsv(paste0(here(), "/data/longest_proteincoding_transcript_hs_details.txt")) # file containing all 
+
+file <- paste0(here(), "/data/A1.Aligned.toTranscriptome.out.bam.bed.gz")
+
+data <- read_tsv(file, col_names = c("transcript_id", "zero_based_start", "end", 
+                                     "name", "score", "strand")) %>%
+  dplyr::filter(strand == "+") %>%
+  mutate(start = zero_based_start + 1) %>%
+  mutate(length = end-start+1) %>%
+  inner_join(info, by = "transcript_id") %>%
+  mutate(frame = (start-cds_start)%%3) %>% # 5' frame
+  group_by(frame, length) %>%
+  mutate(number = n()) %>%
+  ungroup() %>%
+  dplyr::filter(length >= min_length & length <= max_length) %>%
+  dplyr::select(length, frame, number) %>%
+  unique()
+
+ggplot(data, aes(x = length, y = number, fill = factor(frame))) +
+  geom_bar(position="dodge", stat="identity") +
+  xlab("Read length") +
+  theme(axis.text.y=element_blank(),
+        axis.title.y=element_blank(),
+        axis.ticks.y=element_blank()) +
+  ggtitle("Relative number of reads with 5' end in each frame")
+
+
+# And metaplot
+
+meta <- rep(0,200)
+
+bed <- read_tsv(paste0(here(), "/data/G2.Aligned.toTranscriptome.out.bam.bed.gz_forParaclu.bed.gz"), 
+                col_names = c("transcript_id", "start", "end", "gene_id", "counts", "strand")) %>%
+    left_join(info, by = c("transcript_id", "gene_id")) %>%
+    group_by(transcript_id) %>%
+    mutate(sum_tx = sum(counts)) %>%
+    ungroup() %>%
+    mutate(normalised_counts = counts/sum_tx)
+
+for(row in 1:nrow(bed)){
+    this_cds_start <- bed$cds_start[row]
+    this_cds_end <- bed$cds_end[row]
+    this_pos <- bed$start[row]
+    this_counts <- bed$normalised_counts[row]
+    this_cds_length <- bed$cds_length[row]
+    this_tx_length <- bed$tx_length[row]
+    
+    # 50 buckets for 5 and 3' utr, 100 for cds
+    
+    # if in 5' utr
+    if(this_pos < this_cds_start){
+      metapos <- ceiling(49*this_pos/this_cds_start)
+      meta[metapos] <- meta[metapos] + this_counts
+      
+    }else if(this_pos >= this_cds_start & this_pos <= this_cds_end){
+      metapos <- 50+floor(100*(this_pos-this_cds_start)/this_cds_length)
+      meta[metapos] <- meta[metapos] + this_counts
+      
+    }else if(this_pos > this_cds_end){
+      metapos <- 150 + floor(50*(this_pos-this_cds_end)/(this_tx_length-this_cds_end))
+      meta[metapos] <- meta[metapos] + this_counts
+    }
+}
+  
+meta_data <- data.frame(Counts = meta) %>%
+  rownames_to_column(var = "Positionwrong") %>%
+  mutate(Position = as.numeric(Positionwrong))
+
+ggplot(meta_data, aes(x = Position, y = Counts))+
+  geom_area() +
+  ggtitle("Distribution of counts")
+
+
+## extra metaplots not in paper
+
+data <- read_tsv(file, col_names = c("transcript_id", "zero_based_start", "end", 
+                                     "name", "score", "strand")) %>%
+  dplyr::filter(strand == "+") %>%
+  mutate(start = zero_based_start + 1) %>%
+  mutate(length = end-start+1) %>%
+  inner_join(info, by = "transcript_id") 
+
+df_start <- data %>%
+  mutate(from_start = start-cds_start) %>%
+  group_by(from_start) %>%
+  mutate(n = n()) %>%
+  select(from_start, n) %>%
+  unique() 
+
+ggplot(df_start %>% filter(abs(from_start) < 100), aes(x = from_start, y = n)) +
+  geom_bar(stat="identity") +
+  ggtitle("Metaplots around start for A1 - all read lengths so strong periodicity NOT expected")
+
+df_end <- data %>%
+  mutate(from_end = start-cds_end) %>%
+  group_by(from_end) %>%
+  mutate(n = n()) %>%
+  select(from_end, n) %>%
+  unique() 
+
+ggplot(df_end %>% filter(abs(from_end) < 100), aes(x = from_end, y = n)) +
+  geom_bar(stat="identity")+
+  ggtitle("Metaplots around end for A1 - all read lengths so strong periodicity NOT expected")
+
+
+```

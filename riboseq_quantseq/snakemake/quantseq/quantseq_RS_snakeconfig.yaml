@@ -1,0 +1,33 @@
+samples:
+  A1: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A23_S16_L001_R1_001.fastq.gz
+  A2: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A24_S17_L001_R1_001.fastq.gz
+  A3: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A25_S18_L001_R1_001.fastq.gz
+  B1: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A26_S19_L001_R1_001.fastq.gz
+  B2: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A27_S20_L001_R1_001.fastq.gz
+  B3: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A28_S21_L001_R1_001.fastq.gz
+  C1: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A29_S22_L001_R1_001.fastq.gz
+  C2: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A30_S24_L001_R1_001.fastq.gz
+  C3: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A31_S25_L001_R1_001.fastq.gz
+  D1: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A32_S26_L001_R1_001.fastq.gz
+  D2: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A33_S27_L001_R1_001.fastq.gz
+  D3: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A34_S28_L001_R1_001.fastq.gz
+  E1: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A35_S29_L001_R1_001.fastq.gz
+  E2: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A36_S30_L001_R1_001.fastq.gz
+  E3: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A37_S31_L001_R1_001.fastq.gz
+  G1: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A38_S32_L001_R1_001.fastq.gz
+  G2: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A39_S33_L001_R1_001.fastq.gz
+  G3: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/fastqs/WIL762A40_S35_L001_R1_001.fastq.gz
+
+
+
+# Define the genome files.
+genome: /camp/lab/ulej/working/Rupert/genomes/hs/fasta/GRCh38.primary_assembly.genome.fa
+genome_annot: /camp/lab/ulej/working/Rupert/genomes/hs/annotation/gencode.v29.annotation.gtf
+
+staridx_path: /camp/lab/ulej/working/Oscar/genomes/hs/gencode_29/star_index/
+
+# Define the output directory name. You must create this directory prior to running the snakefile !!!!!!!!
+output_dir: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/Mapped
+
+# Define a directory for temporary files
+tmp_dir: /camp/lab/ulej/working/Oscar/Roberto_Simone/quantseq/temporary_files
